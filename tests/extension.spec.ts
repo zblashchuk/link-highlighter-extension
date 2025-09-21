@@ -19,8 +19,8 @@ async function ensureContentActive(page) {
   return extId;
 }
 
-// Тест 1: на странице со ссылками — клик по экранной кнопке (эмулирует клик по иконке)
-test('Имитируем пользователя: клик по экранной кнопке подсвечивает ссылки', async () => {
+/// --- Test 1: simulate user flow via on-page button (same logic as toolbar click)
+test('Simulate user: clicking the on-page button highlights links', async () => {
   const context = await chromium.launchPersistentContext('./.tmp-e2e-1', {
     headless: false,
     args: [
@@ -34,8 +34,10 @@ test('Имитируем пользователя: клик по экранно�
     await page.goto('https://example.com#e2e');
     await ensureContentActive(page);
 
+    // Click the E2E button (invokes the same highlight() logic as toolbar click)
     await page.getByRole('button', { name: /E2E: Highlight links/i }).click();
 
+    // At least one <a> should be highlighted (yellow background)
     await page.waitForFunction(() => {
       const links = Array.from(document.querySelectorAll('a'));
       return links.some(a => getComputedStyle(a).backgroundColor === 'rgb(255, 255, 0)');
@@ -45,8 +47,8 @@ test('Имитируем пользователя: клик по экранно�
   }
 });
 
-/// --- Тест 2: страница без ссылок — ничего не ломается ---
-test('Страница без ссылок не ломается при клике', async () => {
+// --- Test 2: page without links stays intact after click
+test('Page without links stays intact on click', async () => {
   const context = await chromium.launchPersistentContext('./.tmp-e2e-2', {
     headless: false,
     args: [
@@ -57,27 +59,25 @@ test('Страница без ссылок не ломается при клик
 
   try {
     const page = await context.newPage();
-    // ВАЖНО: http/https + #e2e, чтобы контент-скрипт загрузился и показал кнопку
     await page.goto('https://example.com#e2e');
     await ensureContentActive(page);
 
-    // Удалим ВСЕ ссылки, чтобы сделать "страницу без ссылок"
+    // Remove all links to simulate "no links" page
     await page.evaluate(() => {
       document.querySelectorAll('a').forEach(a => a.remove());
     });
 
-    // Убедимся, что ссылок 0
+    // Sanity check: there are 0 links
     let count = await page.$$eval('a', links => links.length);
     expect(count).toBe(0);
 
-    // Клик по e2e-кнопке (эмулирует клик по иконке)
+    // Click E2E button — should not break anything
     await page.getByRole('button', { name: /E2E: Highlight links/i }).click();
 
-    // Проверяем, что ничего не «упало» и ссылок по-прежнему 0
+    // Still 0 links and no crash
     count = await page.$$eval('a', links => links.length);
     expect(count).toBe(0);
   } finally {
     await context.close();
   }
 });
-
