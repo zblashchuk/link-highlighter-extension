@@ -1,35 +1,42 @@
-name: CD — Build & Release
+name: CD — Test, Build & Release
 
 on:
   push:
-    tags: ['v*']   # приклад тригера: v1.2.3
-    workflow_dispatch: {}
+    tags: ['v*']   # приклад: v1.2.5
+  workflow_dispatch: {}  # опційно: ручний запуск
 
-# ⬇️ ДАЄМО ТОКЕНУ ПРАВО ЗАПИСУ ДО КОНТЕНТУ РЕПО
 permissions:
-  contents: write         # потрібно, щоб створювати Release
+  contents: write   # потрібно для створення GitHub Release
 
 jobs:
   test:
-    name: Run Playwright tests
+    name: Run Playwright tests (same as CI)
     runs-on: ubuntu-latest
-    # можеш використовувати контейнер з уже встановленим браузером:
-    # container: mcr.microsoft.com/playwright:v1.47.0-jammy
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+      cancel-in-progress: true
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
-      - run: npm ci || npm i
-      - run: npx playwright install --with-deps chromium
-      # якщо у тебе в конфізі headless=true в CI — вистачить простого запуску:
-      - name: Run tests
-        run: npx playwright test --project=chromium
-      # або (якщо тримаєш headless: false) — через Xvfb:
-      # - name: Run tests (headed via Xvfb)
-      #   run: xvfb-run --auto-servernum --server-args='-screen 0 1920x1080x24' npx playwright test --project=chromium
+
+      - name: Install deps
+        run: npm ci || npm i
+
+      - name: Install Playwright Chromium + system deps
+        run: npx playwright install --with-deps chromium
+
+      # ВАЖЛИВО: так само як у робочому tests.yml — headed через Xvfb
+      - name: Run tests (headed via Xvfb)
+        run: |
+          xvfb-run --auto-servernum --server-args='-screen 0 1920x1080x24' \
+          npx playwright test
 
       - name: Upload HTML report
         if: always()
@@ -42,12 +49,13 @@ jobs:
   build-and-release:
     name: Build ZIP & create GitHub Release
     runs-on: ubuntu-latest
-    needs: test             # ← НЕ стартує, поки job "test" не стане зеленою
+    needs: test   # ← не запуститься, поки job "test" не зелений
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Install jq
+      - name: Install jq + zip
         run: sudo apt-get update && sudo apt-get install -y jq zip
 
       - name: Read manifest version
