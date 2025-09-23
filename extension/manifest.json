@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Link Highlighter",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "description": "Highlights links on the active tab (icon click). Includes an optional e2e hook.",
   "action": {
     "default_title": "Highlight links"
