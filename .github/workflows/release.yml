@@ -1,13 +1,23 @@
 name: CD — Build & Release
+
 on:
   push:
-    tags: ['v*']   # приклад: v1.2.3
+    tags: ['v*']   # приклад тригера: v1.2.3
+    workflow_dispatch: {}
+
+# ⬇️ ДАЄМО ТОКЕНУ ПРАВО ЗАПИСУ ДО КОНТЕНТУ РЕПО
+permissions:
+  contents: write
 
 jobs:
   build-and-release:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
+
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
 
       - name: Read manifest version
         id: ver
@@ -17,7 +27,10 @@ jobs:
         run: |
           TAG="${GITHUB_REF_NAME#v}"
           MANIFEST_VER=$(jq -r '.version' extension/manifest.json)
-          [ "$TAG" = "$MANIFEST_VER" ] || (echo "Tag v$TAG != $MANIFEST_VER" && exit 1)
+          if [ "$TAG" != "$MANIFEST_VER" ]; then
+            echo "Tag v$TAG != manifest.json version $MANIFEST_VER"
+            exit 1
+          fi
 
       - name: Pack extension
         run: |
