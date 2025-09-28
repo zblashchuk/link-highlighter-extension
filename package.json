@@ -6,7 +6,10 @@
     "pw:install": "playwright install chromium",
     "test": "playwright test",
     "test:headed": "playwright test --headed",
-    "test:ui": "playwright test --ui"
+    "test:ui": "playwright test --ui",
+    "build:docker": "docker build -t lh-tests .",
+    "test:docker": "docker run --rm -it lh-tests bash -lc --% \"xvfb-run -a npx playwright test --project=chromium --reporter=list --workers=1\"",
+    "test:docker:report": "docker run --rm -t -v %cd%\\playwright-report:/app/playwright-report lh-tests bash -lc --% \"xvfb-run -a npx playwright test --project=chromium\""
   },
   "devDependencies": {
     "@playwright/test": "^1.47.0"
