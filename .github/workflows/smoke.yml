@@ -2,7 +2,7 @@ name: Nightly smoke
 
 on:
   schedule:
-    - cron: "25 14 * * *"   # 17:30 за Києвом (зараз UTC+3)
+    - cron: "07 15 * * *"   # 17:30 за Києвом (зараз UTC+3)
   workflow_dispatch: {}      # ручний запуск
 
 jobs:
