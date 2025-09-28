@@ -102,3 +102,7 @@ Node/ESM помилка (Playwright вимагає 18.19+): онови Node до
 ├─ playwright.config.ts     # або .cjs, якщо старий Node
 ├─ .gitignore
 └─ README.md
+
+
+![CI](https://github.com/zblashchuk/link-highlighter-extension/actions/workflows/tests.yml/badge.svg)
+![CD](https://github.com/zblashchuk/link-highlighter-extension/actions/workflows/release.yml/badge.svg)

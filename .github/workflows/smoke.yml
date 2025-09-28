@@ -1,0 +1,24 @@
+name: Nightly smoke
+
+on:
+  schedule:
+    - cron: "15 14 * * *"   # щодня 05:00 UTC (08:00 за Києвом восени) 
+  workflow_dispatch: {}
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    container: mcr.microsoft.com/playwright:v1.47.0-jammy
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm ci || npm i
+      - run: npx playwright install --with-deps chromium
+      - name: Run smoke (headed via Xvfb)
+        run: xvfb-run -a npx playwright test --project=chromium --grep "smoke"
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: smoke-report
+          path: playwright-report/
+          retention-days: 7

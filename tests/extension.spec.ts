@@ -20,7 +20,7 @@ async function ensureContentActive(page) {
 }
 
 /// --- Test 1: simulate user flow via on-page button (same logic as toolbar click)
-test('Simulate user: clicking the on-page button highlights links', async () => {
+test('SMOKE: Simulate user — clicking the on-page button highlights links', async () =>  {
   const context = await chromium.launchPersistentContext('./.tmp-e2e-1', {
     headless: false,
     args: [
@@ -48,7 +48,7 @@ test('Simulate user: clicking the on-page button highlights links', async () => 
 });
 
 // --- Test 2: page without links stays intact after click
-test('Page without links stays intact on click', async () => {
+test('SMOKE: Page without links stays intact on click', async () => {
   const context = await chromium.launchPersistentContext('./.tmp-e2e-2', {
     headless: false,
     args: [
