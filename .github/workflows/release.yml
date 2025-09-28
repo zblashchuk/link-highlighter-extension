@@ -2,16 +2,17 @@ name: CD — Test, Build & Release
 
 on:
   push:
-    tags: ['v*']   # приклад: v1.2.5
-  workflow_dispatch: {}  # опційно: ручний запуск
+    tags: ['v*']              # приклад: v1.2.8
+  workflow_dispatch: {}        # опційно: ручний запуск
 
 permissions:
-  contents: write   # потрібно для створення GitHub Release
+  contents: write              # потрібно для створення GitHub Release
 
 jobs:
   test:
-    name: Run Playwright tests (same as CI)
+    name: Run Playwright tests (container)
     runs-on: ubuntu-latest
+    container: mcr.microsoft.com/playwright:v1.47.0-jammy   # ← виправлено
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}
       cancel-in-progress: true
@@ -20,19 +21,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-
+      # У контейнері вже є Node/Chromium; залишимо як страховку
       - name: Install deps
         run: npm ci || npm i
 
-      - name: Install Playwright Chromium + system deps
+      - name: Ensure Playwright deps
         run: npx playwright install --with-deps chromium
 
-      # ВАЖЛИВО: так само як у робочому tests.yml — headed через Xvfb
       - name: Run tests (headed via Xvfb)
         run: |
           xvfb-run --auto-servernum --server-args='-screen 0 1920x1080x24' \
@@ -49,7 +44,7 @@ jobs:
   build-and-release:
     name: Build ZIP & create GitHub Release
     runs-on: ubuntu-latest
-    needs: test   # ← не запуститься, поки job "test" не зелений
+    needs: test
 
     steps:
       - name: Checkout
