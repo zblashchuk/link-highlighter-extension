@@ -2,8 +2,8 @@ name: Nightly smoke
 
 on:
   schedule:
-    - cron: "15 14 * * *"   # щодня 05:00 UTC (08:00 за Києвом восени) 
-  workflow_dispatch: {}
+    - cron: "25 14 * * *"   # 17:30 за Києвом (зараз UTC+3)
+  workflow_dispatch: {}      # ручний запуск
 
 jobs:
   smoke:
@@ -14,7 +14,7 @@ jobs:
       - run: npm ci || npm i
       - run: npx playwright install --with-deps chromium
       - name: Run smoke (headed via Xvfb)
-        run: xvfb-run -a npx playwright test --project=chromium --grep "smoke"
+        run: xvfb-run -a npx playwright test --project=chromium --grep "(?i)smoke"
       - name: Upload report
         if: always()
         uses: actions/upload-artifact@v4
