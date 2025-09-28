@@ -106,5 +106,4 @@ Node/ESM помилка (Playwright вимагає 18.19+): онови Node до
 
 ![CI](https://github.com/zblashchuk/link-highlighter-extension/actions/workflows/tests.yml/badge.svg)
 ![CD](https://github.com/zblashchuk/link-highlighter-extension/actions/workflows/release.yml/badge.svg)
-![Nightly smoke](https://github.com/<USER>/<REPO>/actions/workflows/smoke.yml/badge.svg)
-
+![Nightly smoke](https://github.com/zblashchuk/link-highlighter-extension/actions/workflows/smoke.yml/badge.svg)
