@@ -14,7 +14,7 @@ jobs:
       - run: npm ci || npm i
       - run: npx playwright install --with-deps chromium
       - name: Run smoke (headed via Xvfb)
-        run: xvfb-run -a npx playwright test --project=chromium --grep "(?i)smoke"
+        run: xvfb-run -a npx playwright test --project=chromium --grep "SMOKE"
       - name: Upload report
         if: always()
         uses: actions/upload-artifact@v4
